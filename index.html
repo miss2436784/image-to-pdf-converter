@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图片转PDF工具 - 调试版</title>
+    <title>图片转PDF工具 - 最终版</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,14 +14,6 @@
         </header>
 
         <main>
-            <!-- 调试信息 -->
-            <div class="debug-info" style="background: #f0f8ff; padding: 15px; margin-bottom: 20px; border-radius: 8px; display: none;">
-                <h4>设备信息：</h4>
-                <p id="deviceInfo"></p>
-                <h4>测试结果：</h4>
-                <ul id="testResults"></ul>
-            </div>
-
             <div class="upload-section">
                 <div class="upload-area" id="uploadArea">
                     <div class="upload-content">
@@ -32,7 +24,6 @@
                         </svg>
                         <h3>拖拽图片到此处或点击上传</h3>
                         <p>支持 JPG, PNG, GIF, BMP 格式</p>
-                        <p class="mobile-tip" style="display: none;">💡 如果无法多选，尝试点击不同的选择按钮</p>
                         <div style="display: none;">
                             <input type="file" id="fileInput" accept="image/*" multiple>
                             <input type="file" id="iosFileInput" accept="image/*" multiple>
@@ -41,28 +32,25 @@
                     </div>
                 </div>
                 
-                <!-- 测试按钮 -->
-                <div style="margin: 20px 0;">
-                    <button class="btn btn-secondary" onclick="toggleDebug()">显示/隐藏调试信息</button>
-                    <button class="btn btn-primary" onclick="testFileInput()">测试文件输入器</button>
+                <!-- 操作说明 -->
+                <div style="margin: 20px 0; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                    <h4 style="margin: 0 0 10px 0; color: #333;">使用说明：</h4>
+                    <ul style="margin: 0; padding-left: 20px; color: #666; font-size: 14px;">
+                        <li>由于Android系统限制，无法直接多选图片</li>
+                        <li>请点击"批量选择图片"按钮</li>
+                        <li>在弹出框中点击"添加更多图片"一张一张选择</li>
+                        <li>选择完成后点击"完成选择"</li>
+                        <li>最后点击"转换为PDF"生成文件</li>
+                    </ul>
                 </div>
                 
-                <!-- 额外的安卓批量选择按钮 -->
+                <!-- 移动端选择按钮 -->
                 <div class="mobile-buttons" id="mobileButtons" style="display: none;">
-                    <button class="btn btn-secondary mobile-btn" id="androidBatchBtn">
+                    <button class="btn btn-primary mobile-btn" id="androidBatchBtn">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M4 6h16M4 12h16M4 18h16"></path>
+                            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
                         </svg>
                         批量选择图片
-                    </button>
-                    <button class="btn btn-secondary mobile-btn" id="iosBatchBtn">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <rect x="3" y="3" width="7" height="7"></rect>
-                            <rect x="14" y="3" width="7" height="7"></rect>
-                            <rect x="14" y="14" width="7" height="7"></rect>
-                            <rect x="3" y="14" width="7" height="7"></rect>
-                        </svg>
-                        相册多选
                     </button>
                 </div>
             </div>
@@ -88,43 +76,5 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="script.js"></script>
-    
-    <!-- 调试脚本 -->
-    <script>
-        function toggleDebug() {
-            const debugInfo = document.querySelector('.debug-info');
-            debugInfo.style.display = debugInfo.style.display === 'none' ? 'block' : 'none';
-        }
-        
-        function testFileInput() {
-            const testInput = document.createElement('input');
-            testInput.type = 'file';
-            testInput.accept = 'image/*';
-            testInput.multiple = true;
-            
-            testInput.addEventListener('change', (e) => {
-                const results = document.getElementById('testResults');
-                results.innerHTML = `<li>文件选择成功，共 ${e.target.files.length} 个文件</li>`;
-                Array.from(e.target.files).forEach((file, index) => {
-                    results.innerHTML += `<li>文件 ${index + 1}: ${file.name}</li>`;
-                });
-            });
-            
-            testInput.click();
-        }
-        
-        // 显示设备信息
-        document.addEventListener('DOMContentLoaded', () => {
-            const deviceInfo = document.getElementById('deviceInfo');
-            deviceInfo.innerHTML = `
-                用户代理: ${navigator.userAgent}<br>
-                是否移动设备: ${/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)}<br>
-                是否安卓: ${/Android/.test(navigator.userAgent)}<br>
-                是否iOS: ${/iPad|iPhone|iPod/.test(navigator.userAgent)}<br>
-                屏幕宽度: ${window.screen.width}px<br>
-                触摸支持: ${('ontouchstart' in window) || (navigator.maxTouchPoints > 0)}
-            `;
-        });
-    </script>
 </body>
 </html>

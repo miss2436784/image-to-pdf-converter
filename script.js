@@ -31,7 +31,6 @@ class ImageToPDFConverter {
         
         // 移动端专用按钮
         this.androidBatchBtn.addEventListener('click', () => this.handleAndroidBatch());
-        this.iosBatchBtn.addEventListener('click', () => this.handleIOSBatch());
         
         this.clearBtn.addEventListener('click', () => this.clearImages());
         this.convertBtn.addEventListener('click', () => this.convertToPDF());
@@ -104,54 +103,99 @@ class ImageToPDFConverter {
     }
 
     tryMultipleApproaches() {
-        // 方法1：标准文件输入器
-        const input1 = document.createElement('input');
-        input1.type = 'file';
-        input1.accept = 'image/*';
-        input1.multiple = true;
-        input1.style.display = 'none';
-        document.body.appendChild(input1);
+        // 既然多选不支持，改为连续选择
+        this.showSequentialSelection();
+    }
+
+    showSequentialSelection() {
+        const dialog = document.createElement('div');
+        dialog.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 10000;
+            max-width: 350px;
+            width: 90%;
+            text-align: center;
+        `;
         
-        input1.addEventListener('change', (e) => {
-            this.handleFileSelect(e);
-            document.body.removeChild(input1);
+        dialog.innerHTML = `
+            <h3 style="margin: 0 0 15px 0; color: #333;">选择图片</h3>
+            <p style="margin: 0 0 20px 0; color: #666; font-size: 14px;">
+                由于Android限制，请一张一张选择图片<br>
+                选择完成后点击"完成选择"
+            </p>
+            <div style="display: flex; gap: 10px; flex-direction: column;">
+                <button id="addMoreBtn" style="
+                    padding: 12px;
+                    background: #667eea;
+                    color: white;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-size: 14px;
+                ">添加更多图片</button>
+                <button id="finishBtn" style="
+                    padding: 12px;
+                    background: #28a745;
+                    color: white;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-size: 14px;
+                ">完成选择</button>
+                <button onclick="this.parentElement.parentElement.remove()" style="
+                    padding: 12px;
+                    background: #f5f5f5;
+                    color: #666;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-size: 14px;
+                ">取消</button>
+            </div>
+            <p id="currentCount" style="margin: 15px 0 0 0; color: #667eea; font-weight: bold;">
+                当前已选择：${this.uploadedImages.length} 张图片
+            </p>
+        `;
+        
+        document.body.appendChild(dialog);
+        
+        // 添加更多图片
+        dialog.getElementById('addMoreBtn').addEventListener('click', () => {
+            this.selectSingleImage(() => {
+                dialog.getElementById('currentCount').textContent = `当前已选择：${this.uploadedImages.length} 张图片`;
+            });
         });
         
-        input1.addEventListener('click', () => {
-            console.log('尝试方法1：标准文件输入器');
+        // 完成选择
+        dialog.getElementById('finishBtn').addEventListener('click', () => {
+            dialog.remove();
+            this.renderImages();
+        });
+    }
+
+    selectSingleImage(callback) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.style.display = 'none';
+        document.body.appendChild(input);
+        
+        input.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                this.processImage(e.target.files[0]);
+            }
+            document.body.removeChild(input);
+            if (callback) callback();
         });
         
-        // 方法2：带capture属性的输入器
-        const input2 = document.createElement('input');
-        input2.type = 'file';
-        input2.accept = 'image/*';
-        input2.multiple = true;
-        input2.capture = 'environment';
-        input2.style.display = 'none';
-        
-        input2.addEventListener('change', (e) => {
-            this.handleFileSelect(e);
-            document.body.removeChild(input2);
-        });
-        
-        // 方法3：只设置accept和multiple
-        const input3 = document.createElement('input');
-        input3.type = 'file';
-        input3.accept = 'image/jpeg,image/png,image/gif';
-        input3.multiple = true;
-        input3.style.display = 'none';
-        
-        input3.addEventListener('change', (e) => {
-            this.handleFileSelect(e);
-            document.body.removeChild(input3);
-        });
-        
-        // 显示用户选择对话框
-        this.showFileChooserOptions([
-            { label: '方法1：标准文件选择器', action: () => input1.click() },
-            { label: '方法2：相机+相册选择器', action: () => input2.click() },
-            { label: '方法3：仅图片格式选择器', action: () => input3.click() }
-        ]);
+        input.click();
     }
 
     showFileChooserOptions(options) {
@@ -223,7 +267,7 @@ class ImageToPDFConverter {
     }
 
     handleAndroidBatch() {
-        // 尝试多种方法
+        // 使用连续选择方式
         this.tryMultipleApproaches();
     }
 
