@@ -8,7 +8,8 @@ class ImageToPDFConverter {
     initializeElements() {
         this.uploadArea = document.getElementById('uploadArea');
         this.fileInput = document.getElementById('fileInput');
-        this.mobileFileInput = document.getElementById('mobileFileInput');
+        this.iosFileInput = document.getElementById('iosFileInput');
+        this.androidFileInput = document.getElementById('androidFileInput');
         this.previewSection = document.getElementById('previewSection');
         this.imageGrid = document.getElementById('imageGrid');
         this.clearBtn = document.getElementById('clearBtn');
@@ -20,7 +21,8 @@ class ImageToPDFConverter {
     bindEvents() {
         this.uploadArea.addEventListener('click', () => this.handleUploadClick());
         this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
-        this.mobileFileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+        this.iosFileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+        this.androidFileInput.addEventListener('change', (e) => this.handleFileSelect(e));
         this.clearBtn.addEventListener('click', () => this.clearImages());
         this.convertBtn.addEventListener('click', () => this.convertToPDF());
 
@@ -48,15 +50,44 @@ class ImageToPDFConverter {
     }
 
     handleUploadClick() {
-        if (this.isMobile()) {
-            this.mobileFileInput.click();
+        if (this.isIOS()) {
+            // iOS特殊处理：移除并重新创建input以确保多选生效
+            this.setupIOSFileInput();
+            this.iosFileInput.click();
+        } else if (this.isAndroid()) {
+            this.androidFileInput.click();
         } else {
             this.fileInput.click();
         }
     }
 
+    isIOS() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent);
+    }
+
+    isAndroid() {
+        return /Android/.test(navigator.userAgent);
+    }
+
     isMobile() {
-        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        return this.isIOS() || this.isAndroid();
+    }
+
+    setupIOSFileInput() {
+        // 重新创建iOS文件输入器确保多选功能
+        if (this.iosFileInput) {
+            const newInput = document.createElement('input');
+            newInput.type = 'file';
+            newInput.accept = 'image/*';
+            newInput.multiple = true;
+            newInput.id = 'iosFileInput';
+            newInput.style.display = 'none';
+            
+            this.iosFileInput.parentNode.replaceChild(newInput, this.iosFileInput);
+            this.iosFileInput = newInput;
+            
+            this.iosFileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+        }
     }
 
     handleFileSelect(event) {
@@ -119,7 +150,8 @@ class ImageToPDFConverter {
         this.uploadedImages = [];
         this.renderImages();
         this.fileInput.value = '';
-        this.mobileFileInput.value = '';
+        if (this.iosFileInput) this.iosFileInput.value = '';
+        if (this.androidFileInput) this.androidFileInput.value = '';
     }
 
     async convertToPDF() {
