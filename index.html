@@ -24,7 +24,9 @@
                         </svg>
                         <h3>拖拽图片到此处或点击上传</h3>
                         <p>支持 JPG, PNG, GIF, BMP 格式</p>
-                        <input type="file" id="fileInput" accept="image/*" multiple hidden>
+                        <p class="mobile-tip" style="display: none;">💡 手机用户：可多选图片批量上传</p>
+                        <input type="file" id="fileInput" accept="image/*" multiple webkitdirectory directory hidden>
+                        <input type="file" id="mobileFileInput" accept="image/*" multiple hidden>
                     </div>
                 </div>
             </div>

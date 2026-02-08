@@ -8,6 +8,7 @@ class ImageToPDFConverter {
     initializeElements() {
         this.uploadArea = document.getElementById('uploadArea');
         this.fileInput = document.getElementById('fileInput');
+        this.mobileFileInput = document.getElementById('mobileFileInput');
         this.previewSection = document.getElementById('previewSection');
         this.imageGrid = document.getElementById('imageGrid');
         this.clearBtn = document.getElementById('clearBtn');
@@ -17,8 +18,9 @@ class ImageToPDFConverter {
     }
 
     bindEvents() {
-        this.uploadArea.addEventListener('click', () => this.fileInput.click());
+        this.uploadArea.addEventListener('click', () => this.handleUploadClick());
         this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+        this.mobileFileInput.addEventListener('change', (e) => this.handleFileSelect(e));
         this.clearBtn.addEventListener('click', () => this.clearImages());
         this.convertBtn.addEventListener('click', () => this.convertToPDF());
 
@@ -36,6 +38,25 @@ class ImageToPDFConverter {
             this.uploadArea.classList.remove('dragover');
             this.handleFileSelect(e);
         });
+
+        if (this.isMobile()) {
+            const mobileTip = document.querySelector('.mobile-tip');
+            if (mobileTip) {
+                mobileTip.style.display = 'block';
+            }
+        }
+    }
+
+    handleUploadClick() {
+        if (this.isMobile()) {
+            this.mobileFileInput.click();
+        } else {
+            this.fileInput.click();
+        }
+    }
+
+    isMobile() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
 
     handleFileSelect(event) {
@@ -98,6 +119,7 @@ class ImageToPDFConverter {
         this.uploadedImages = [];
         this.renderImages();
         this.fileInput.value = '';
+        this.mobileFileInput.value = '';
     }
 
     async convertToPDF() {
