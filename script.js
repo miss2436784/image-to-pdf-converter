@@ -10,12 +10,17 @@ class ImageToPDFConverter {
         this.fileInput = document.getElementById('fileInput');
         this.iosFileInput = document.getElementById('iosFileInput');
         this.androidFileInput = document.getElementById('androidFileInput');
+        this.mobileButtons = document.getElementById('mobileButtons');
+        this.androidBatchBtn = document.getElementById('androidBatchBtn');
+        this.iosBatchBtn = document.getElementById('iosBatchBtn');
         this.previewSection = document.getElementById('previewSection');
         this.imageGrid = document.getElementById('imageGrid');
+        this.countElement = document.querySelector('.count');
         this.clearBtn = document.getElementById('clearBtn');
         this.convertBtn = document.getElementById('convertBtn');
         this.progressSection = document.getElementById('progressSection');
         this.progressFill = document.getElementById('progressFill');
+        this.progressText = document.getElementById('progressText');
     }
 
     bindEvents() {
@@ -23,6 +28,11 @@ class ImageToPDFConverter {
         this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
         this.iosFileInput.addEventListener('change', (e) => this.handleFileSelect(e));
         this.androidFileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+        
+        // 移动端专用按钮
+        this.androidBatchBtn.addEventListener('click', () => this.handleAndroidBatch());
+        this.iosBatchBtn.addEventListener('click', () => this.handleIOSBatch());
+        
         this.clearBtn.addEventListener('click', () => this.clearImages());
         this.convertBtn.addEventListener('click', () => this.convertToPDF());
 
@@ -46,6 +56,7 @@ class ImageToPDFConverter {
             if (mobileTip) {
                 mobileTip.style.display = 'block';
             }
+            this.mobileButtons.style.display = 'block';
         }
     }
 
@@ -55,6 +66,8 @@ class ImageToPDFConverter {
             this.setupIOSFileInput();
             this.iosFileInput.click();
         } else if (this.isAndroid()) {
+            // 安卓特殊处理：确保多选属性正确设置
+            this.setupAndroidFileInput();
             this.androidFileInput.click();
         } else {
             this.fileInput.click();
@@ -90,14 +103,53 @@ class ImageToPDFConverter {
         }
     }
 
+    setupAndroidFileInput() {
+        // 重新创建安卓文件输入器确保多选功能
+        if (this.androidFileInput) {
+            const newInput = document.createElement('input');
+            newInput.type = 'file';
+            newInput.accept = 'image/*';
+            newInput.multiple = true;
+            newInput.id = 'androidFileInput';
+            newInput.style.display = 'none';
+            
+            // 强制设置多选属性
+            newInput.setAttribute('multiple', '');
+            newInput.setAttribute('x-moz-filepicker-action', 'open');
+            
+            this.androidFileInput.parentNode.replaceChild(newInput, this.androidFileInput);
+            this.androidFileInput = newInput;
+            
+            this.androidFileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+        }
+    }
+
+    handleAndroidBatch() {
+        this.setupAndroidFileInput();
+        this.androidFileInput.click();
+    }
+
+    handleIOSBatch() {
+        this.setupIOSFileInput();
+        this.iosFileInput.click();
+    }
+
     handleFileSelect(event) {
         const files = event.dataTransfer ? event.dataTransfer.files : event.target.files;
         
-        Array.from(files).forEach(file => {
+        console.log('选择的文件数量:', files.length); // 调试信息
+        
+        Array.from(files).forEach((file, index) => {
+            console.log(`文件 ${index + 1}:`, file.name); // 调试信息
             if (file.type.startsWith('image/')) {
                 this.processImage(file);
             }
         });
+        
+        // 清空input以便可以重复选择相同文件
+        if (event.target) {
+            event.target.value = '';
+        }
     }
 
     processImage(file) {
@@ -133,6 +185,11 @@ class ImageToPDFConverter {
             
             this.imageGrid.appendChild(imageItem);
         });
+        
+        // 更新计数
+        if (this.countElement) {
+            this.countElement.textContent = `(${this.uploadedImages.length})`;
+        }
         
         if (this.uploadedImages.length > 0) {
             this.previewSection.style.display = 'block';
@@ -226,6 +283,9 @@ class ImageToPDFConverter {
 
     updateProgress(percentage) {
         this.progressFill.style.width = percentage + '%';
+        if (this.progressText) {
+            this.progressText.textContent = Math.round(percentage) + '%';
+        }
     }
 }
 

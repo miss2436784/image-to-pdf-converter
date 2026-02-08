@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图片转PDF工具</title>
+    <title>图片转PDF工具 - 增强版</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -24,16 +24,37 @@
                         </svg>
                         <h3>拖拽图片到此处或点击上传</h3>
                         <p>支持 JPG, PNG, GIF, BMP 格式</p>
-                        <p class="mobile-tip" style="display: none;">💡 苹果用户：点击后在相册中多选照片 | 安卓用户：支持批量选择</p>
-                        <input type="file" id="fileInput" accept="image/*" multiple hidden>
-                        <input type="file" id="iosFileInput" accept="image/*" multiple hidden>
-                        <input type="file" id="androidFileInput" accept="image/*" multiple hidden>
+                        <p class="mobile-tip" style="display: none;">💡 苹果：相册中点击"选择"多选 | 安卓：长按照片后多选</p>
+                        <div style="display: none;">
+                            <input type="file" id="fileInput" accept="image/*" multiple>
+                            <input type="file" id="iosFileInput" accept="image/*" multiple>
+                            <input type="file" id="androidFileInput" accept="image/*" multiple>
+                        </div>
                     </div>
+                </div>
+                
+                <!-- 额外的安卓批量选择按钮 -->
+                <div class="mobile-buttons" id="mobileButtons" style="display: none;">
+                    <button class="btn btn-secondary mobile-btn" id="androidBatchBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                        批量选择图片
+                    </button>
+                    <button class="btn btn-secondary mobile-btn" id="iosBatchBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        相册多选
+                    </button>
                 </div>
             </div>
 
             <div class="preview-section" id="previewSection" style="display: none;">
-                <h3>已上传的图片</h3>
+                <h3>已上传的图片 <span class="count">(0)</span></h3>
                 <div class="image-grid" id="imageGrid"></div>
                 <div class="controls">
                     <button class="btn btn-secondary" id="clearBtn">清空图片</button>
@@ -46,6 +67,7 @@
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
+                <p class="progress-text" id="progressText">0%</p>
             </div>
         </main>
     </div>

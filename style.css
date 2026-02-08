@@ -148,6 +148,26 @@ main {
     flex-wrap: wrap;
 }
 
+.mobile-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.mobile-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+}
+
+.mobile-btn svg {
+    flex-shrink: 0;
+}
+
 .btn {
     padding: 12px 30px;
     border: none;
@@ -223,17 +243,27 @@ main {
     }
     
     .upload-area {
-        padding: 40px 20px;
+        padding: 30px 15px;
     }
     
     .image-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 15px;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 12px;
     }
     
     .controls {
         flex-direction: column;
         align-items: center;
+    }
+    
+    .mobile-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .mobile-btn {
+        width: 100%;
+        justify-content: center;
     }
     
     .btn {
@@ -243,6 +273,23 @@ main {
 
 @media (max-width: 480px) {
     .image-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
     }
+    
+    .upload-area {
+        padding: 20px 10px;
+    }
+}
+
+.count {
+    color: #666;
+    font-weight: normal;
+    font-size: 0.9rem;
+}
+
+.progress-text {
+    margin-top: 10px;
+    color: #666;
+    font-size: 0.9rem;
 }
