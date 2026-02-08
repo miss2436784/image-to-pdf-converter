@@ -103,30 +103,128 @@ class ImageToPDFConverter {
         }
     }
 
-    setupAndroidFileInput() {
-        // 重新创建安卓文件输入器确保多选功能
-        if (this.androidFileInput) {
-            const newInput = document.createElement('input');
-            newInput.type = 'file';
-            newInput.accept = 'image/*';
-            newInput.multiple = true;
-            newInput.id = 'androidFileInput';
-            newInput.style.display = 'none';
-            
-            // 强制设置多选属性
-            newInput.setAttribute('multiple', '');
-            newInput.setAttribute('x-moz-filepicker-action', 'open');
-            
-            this.androidFileInput.parentNode.replaceChild(newInput, this.androidFileInput);
-            this.androidFileInput = newInput;
-            
-            this.androidFileInput.addEventListener('change', (e) => this.handleFileSelect(e));
-        }
+    tryMultipleApproaches() {
+        // 方法1：标准文件输入器
+        const input1 = document.createElement('input');
+        input1.type = 'file';
+        input1.accept = 'image/*';
+        input1.multiple = true;
+        input1.style.display = 'none';
+        document.body.appendChild(input1);
+        
+        input1.addEventListener('change', (e) => {
+            this.handleFileSelect(e);
+            document.body.removeChild(input1);
+        });
+        
+        input1.addEventListener('click', () => {
+            console.log('尝试方法1：标准文件输入器');
+        });
+        
+        // 方法2：带capture属性的输入器
+        const input2 = document.createElement('input');
+        input2.type = 'file';
+        input2.accept = 'image/*';
+        input2.multiple = true;
+        input2.capture = 'environment';
+        input2.style.display = 'none';
+        
+        input2.addEventListener('change', (e) => {
+            this.handleFileSelect(e);
+            document.body.removeChild(input2);
+        });
+        
+        // 方法3：只设置accept和multiple
+        const input3 = document.createElement('input');
+        input3.type = 'file';
+        input3.accept = 'image/jpeg,image/png,image/gif';
+        input3.multiple = true;
+        input3.style.display = 'none';
+        
+        input3.addEventListener('change', (e) => {
+            this.handleFileSelect(e);
+            document.body.removeChild(input3);
+        });
+        
+        // 显示用户选择对话框
+        this.showFileChooserOptions([
+            { label: '方法1：标准文件选择器', action: () => input1.click() },
+            { label: '方法2：相机+相册选择器', action: () => input2.click() },
+            { label: '方法3：仅图片格式选择器', action: () => input3.click() }
+        ]);
+    }
+
+    showFileChooserOptions(options) {
+        // 创建选择对话框
+        const dialog = document.createElement('div');
+        dialog.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 10000;
+            max-width: 300px;
+            width: 90%;
+        `;
+        
+        dialog.innerHTML = `
+            <h3 style="margin: 0 0 15px 0; color: #333;">选择上传方式</h3>
+            ${options.map((opt, index) => `
+                <button style="
+                    display: block;
+                    width: 100%;
+                    padding: 12px;
+                    margin: 5px 0;
+                    background: #667eea;
+                    color: white;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-size: 14px;
+                " data-index="${index}">${opt.label}</button>
+            `).join('')}
+            <button style="
+                display: block;
+                width: 100%;
+                padding: 12px;
+                margin: 10px 0 0 0;
+                background: #f5f5f5;
+                color: #666;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 14px;
+            " onclick="this.parentElement.remove()">取消</button>
+        `;
+        
+        document.body.appendChild(dialog);
+        
+        // 绑定事件
+        dialog.querySelectorAll('[data-index]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const index = parseInt(e.target.getAttribute('data-index'));
+                options[index].action();
+                dialog.remove();
+            });
+        });
+        
+        // 点击外部关闭
+        setTimeout(() => {
+            dialog.addEventListener('click', (e) => {
+                if (e.target === dialog) {
+                    dialog.remove();
+                }
+            });
+        }, 100);
     }
 
     handleAndroidBatch() {
-        this.setupAndroidFileInput();
-        this.androidFileInput.click();
+        // 尝试多种方法
+        this.tryMultipleApproaches();
     }
 
     handleIOSBatch() {
