@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图片转PDF工具 - 最终版</title>
+    <title>图片转PDF</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>图片转PDF工具</h1>
+            <h1>图片转PDF</h1>
             <p>上传图片文件，轻松转换为PDF文档</p>
         </header>
 
@@ -31,29 +31,6 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- 操作说明 -->
-                <div style="margin: 20px 0; background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                    <h4 style="margin: 0 0 10px 0; color: #333;">使用说明：</h4>
-                    <ul style="margin: 0; padding-left: 20px; color: #666; font-size: 14px;">
-                        <li>由于Android系统限制，无法直接多选图片</li>
-                        <li>请点击"批量选择图片"按钮</li>
-                        <li>在弹出框中点击"添加更多图片"一张一张选择</li>
-                        <li>选择完成后点击"完成选择"</li>
-                        <li>最后点击"转换为PDF"生成文件</li>
-                    </ul>
-                </div>
-                
-                <!-- 移动端选择按钮 -->
-                <div class="mobile-buttons" id="mobileButtons" style="display: none;">
-                    <button class="btn btn-primary mobile-btn" id="androidBatchBtn">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
-                        </svg>
-                        批量选择图片
-                    </button>
-                </div>
-            </div>
 
             <div class="preview-section" id="previewSection" style="display: none;">
                 <h3>已上传的图片 <span class="count">(0)</span></h3>
