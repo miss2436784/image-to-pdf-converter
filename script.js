@@ -103,12 +103,20 @@ class ImageToPDFConverter {
     }
 
     tryMultipleApproaches() {
+        console.log('尝试Android批量选择...');
         // 既然多选不支持，改为连续选择
         this.showSequentialSelection();
     }
 
     showSequentialSelection() {
+        // 先移除已存在的对话框
+        const existingDialog = document.querySelector('.selection-dialog');
+        if (existingDialog) {
+            existingDialog.remove();
+        }
+        
         const dialog = document.createElement('div');
+        dialog.className = 'selection-dialog';
         dialog.style.cssText = `
             position: fixed;
             top: 50%;
@@ -122,11 +130,12 @@ class ImageToPDFConverter {
             max-width: 350px;
             width: 90%;
             text-align: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         `;
         
         dialog.innerHTML = `
-            <h3 style="margin: 0 0 15px 0; color: #333;">选择图片</h3>
-            <p style="margin: 0 0 20px 0; color: #666; font-size: 14px;">
+            <h3 style="margin: 0 0 15px 0; color: #333; font-size: 18px;">选择图片</h3>
+            <p style="margin: 0 0 20px 0; color: #666; font-size: 14px; line-height: 1.4;">
                 由于Android限制，请一张一张选择图片<br>
                 选择完成后点击"完成选择"
             </p>
@@ -139,7 +148,8 @@ class ImageToPDFConverter {
                     border-radius: 5px;
                     cursor: pointer;
                     font-size: 14px;
-                ">添加更多图片</button>
+                    font-weight: 600;
+                ">📷 添加更多图片</button>
                 <button id="finishBtn" style="
                     padding: 12px;
                     background: #28a745;
@@ -148,8 +158,9 @@ class ImageToPDFConverter {
                     border-radius: 5px;
                     cursor: pointer;
                     font-size: 14px;
-                ">完成选择</button>
-                <button onclick="this.parentElement.parentElement.remove()" style="
+                    font-weight: 600;
+                ">✅ 完成选择</button>
+                <button id="cancelBtn" style="
                     padding: 12px;
                     background: #f5f5f5;
                     color: #666;
@@ -157,9 +168,9 @@ class ImageToPDFConverter {
                     border-radius: 5px;
                     cursor: pointer;
                     font-size: 14px;
-                ">取消</button>
+                ">❌ 取消</button>
             </div>
-            <p id="currentCount" style="margin: 15px 0 0 0; color: #667eea; font-weight: bold;">
+            <p id="currentCount" style="margin: 15px 0 0 0; color: #667eea; font-weight: bold; font-size: 14px;">
                 当前已选择：${this.uploadedImages.length} 张图片
             </p>
         `;
@@ -167,20 +178,33 @@ class ImageToPDFConverter {
         document.body.appendChild(dialog);
         
         // 添加更多图片
-        dialog.getElementById('addMoreBtn').addEventListener('click', () => {
+        dialog.querySelector('#addMoreBtn').addEventListener('click', () => {
             this.selectSingleImage(() => {
-                dialog.getElementById('currentCount').textContent = `当前已选择：${this.uploadedImages.length} 张图片`;
+                dialog.querySelector('#currentCount').textContent = `当前已选择：${this.uploadedImages.length} 张图片`;
             });
         });
         
         // 完成选择
-        dialog.getElementById('finishBtn').addEventListener('click', () => {
+        dialog.querySelector('#finishBtn').addEventListener('click', () => {
             dialog.remove();
             this.renderImages();
+        });
+        
+        // 取消
+        dialog.querySelector('#cancelBtn').addEventListener('click', () => {
+            dialog.remove();
+        });
+        
+        // 点击外部关闭
+        dialog.addEventListener('click', (e) => {
+            if (e.target === dialog) {
+                dialog.remove();
+            }
         });
     }
 
     selectSingleImage(callback) {
+        console.log('开始选择单张图片...');
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
@@ -188,11 +212,19 @@ class ImageToPDFConverter {
         document.body.appendChild(input);
         
         input.addEventListener('change', (e) => {
+            console.log('文件选择完成，文件数量:', e.target.files.length);
             if (e.target.files.length > 0) {
+                console.log('处理文件:', e.target.files[0].name);
                 this.processImage(e.target.files[0]);
             }
             document.body.removeChild(input);
             if (callback) callback();
+        });
+        
+        // 监听取消选择
+        input.addEventListener('cancel', () => {
+            console.log('用户取消了文件选择');
+            document.body.removeChild(input);
         });
         
         input.click();
@@ -267,6 +299,7 @@ class ImageToPDFConverter {
     }
 
     handleAndroidBatch() {
+        console.log('Android批量选择按钮被点击');
         // 使用连续选择方式
         this.tryMultipleApproaches();
     }
